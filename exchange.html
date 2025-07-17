@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>FZC Exchange | Криптобиржа РФ</title>
+  <style>
+    body {
+      background: #0e0e0e;
+      color: #e0e0e0;
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
+    header {
+      background: #1a1a1a;
+      padding: 20px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+      color: #00ffcc;
+      border-bottom: 2px solid #00ffcc;
+    }
+    nav {
+      display: flex;
+      background: #151515;
+    }
+    nav button {
+      flex: 1;
+      padding: 14px;
+      background: #151515;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    nav button.active {
+      background: #00ffcc;
+      color: #000;
+      font-weight: bold;
+    }
+    .tab-content {
+      display: none;
+      padding: 30px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .btn {
+      padding: 12px 20px;
+      background: #00ffcc;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+    .status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .card {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      box-shadow: 0 0 8px #00ffcc33;
+    }
+    input {
+      padding: 10px;
+      width: 300px;
+      border-radius: 6px;
+      border: none;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  ☑ FZC Exchange — Официальная криптобиржа
+</header>
+
+<nav>
+  <button class="tab-btn active" data-tab="main">Главная</button>
+  <button class="tab-btn" data-tab="rates">Курсы</button>
+  <button class="tab-btn" data-tab="profile">Профиль</button>
+</nav>
+
+<!-- Главная -->
+<div id="main" class="tab-content active">
+  <h2>Добро пожаловать в систему FZC Exchange</h2>
+  <p>Синхронизировано с платформой майнинга.</p>
+  <div class="card">
+    <p><b>Ваш текущий баланс:</b></p>
+    <p>💰 <span id="balance">0.000</span> FZC</p>
+    <p>≈ <span id="rub">0.00</span> ₽</p>
+    <p>≈ <span id="usdt">0.00</span> USDT</p>
+  </div>
+</div>
+
+<!-- Курсы -->
+<div id="rates" class="tab-content">
+  <h2>Актуальные курсы валют</h2>
+  <div class="card">
+    <p><b>FZC → RUB:</b> <span id="fzcrub">—</span> ₽</p>
+    <p><b>FZC → USDT:</b> <span id="fzcusdt">—</span> USDT</p>
+    <p><b>BTC → RUB:</b> 8 440 000 ₽</p>
+    <p><b>ETH → RUB:</b> 518 000 ₽</p>
+    <p><b>USDT → RUB:</b> 91.3 ₽</p>
+  </div>
+</div>
+
+<!-- Профиль -->
+<div id="profile" class="tab-content">
+  <h2>Ваш криптокошелёк</h2>
+  <div class="card">
+    <p>Номер кошелька:</p>
+    <p id="walletId" style="color:#00ffcc;font-weight:bold;"></p>
+    <button class="btn" onclick="generateWallet()">Создать кошелёк</button>
+    <div class="status" id="walletMsg"></div>
+  </div>
+</div>
+
+<script>
+  const rateRub = 3125 + Math.random() * 400;
+  const rateUsdt = (rateRub / 91.3).toFixed(2);
+
+  function updateUI() {
+    let balance = parseFloat(localStorage.getItem("balance")) || 0;
+    document.getElementById("balance").textContent = balance.toFixed(3);
+    document.getElementById("rub").textContent = (balance * rateRub).toFixed(2);
+    document.getElementById("usdt").textContent = (balance * rateUsdt).toFixed(2);
+
+    document.getElementById("fzcrub").textContent = rateRub.toFixed(2);
+    document.getElementById("fzcusdt").textContent = rateUsdt;
+  }
+
+  function generateWallet() {
+    const existing = localStorage.getItem("fzc_wallet");
+    if (existing) {
+      document.getElementById("walletMsg").innerText = "У вас уже есть кошелёк.";
+      return;
+    }
+    const wallet = "FZC-" + Math.random().toString(36).substring(2, 12).toUpperCase();
+    localStorage.setItem("fzc_wallet", wallet);
+    document.getElementById("walletId").innerText = wallet;
+    document.getElementById("walletMsg").innerText = "✅ Кошелёк создан и сохранён.";
+  }
+
+  function loadWallet() {
+    const wallet = localStorage.getItem("fzc_wallet");
+    if (wallet) {
+      document.getElementById("walletId").innerText = wallet;
+    } else {
+      document.getElementById("walletId").innerText = "— не найден —";
+    }
+  }
+
+  // Вкладки
+  const tabs = document.querySelectorAll('.tab-btn');
+  const contents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  updateUI();
+  loadWallet();
+</script>
+
+</body>
+</html>
