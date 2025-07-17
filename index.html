@@ -2,23 +2,22 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>TeraSync U-Miner v2.1</title>
+  <title>FZC | Федеративная добыча</title>
   <style>
     body {
+      background: #0e0e0e;
+      color: #e4e4e4;
       font-family: Arial, sans-serif;
-      background: #0b0f17;
-      color: #e0e0e0;
       margin: 0;
-      padding: 0;
     }
     header {
-      background: #111;
+      background: #1a1a1a;
       padding: 20px;
       text-align: center;
       font-size: 24px;
+      color: #00ff9d;
       font-weight: bold;
-      color: #00ff91;
-      border-bottom: 1px solid #222;
+      border-bottom: 2px solid #00ff9d;
     }
     nav {
       display: flex;
@@ -29,112 +28,144 @@
       padding: 15px;
       background: #151515;
       border: none;
-      color: white;
+      color: #fff;
       cursor: pointer;
       font-size: 16px;
     }
     nav button.active {
-      background: #00ff91;
+      background: #00ff9d;
       color: #000;
       font-weight: bold;
     }
-    .content {
-      padding: 30px;
+    .tab-content {
       display: none;
+      padding: 30px;
     }
-    .content.active {
+    .tab-content.active {
       display: block;
     }
-    .status {
-      font-size: 20px;
-      margin-top: 20px;
-    }
-    .wallet-input {
-      margin-top: 20px;
-    }
-    .wallet-input input {
-      padding: 10px;
-      width: 250px;
+    .btn {
+      padding: 12px 20px;
+      background: #00ff9d;
       border: none;
-      border-radius: 5px;
-    }
-    .wallet-input button {
-      padding: 10px 20px;
-      margin-left: 10px;
-      background: #00ff91;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
       font-weight: bold;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 16px;
+      margin-top: 15px;
+    }
+    input {
+      padding: 10px;
+      width: 280px;
+      border-radius: 5px;
+      border: none;
+      margin-top: 10px;
     }
     .error {
-      color: #ff5e5e;
-      margin-top: 20px;
+      color: #ff6b6b;
+      margin-top: 15px;
       font-weight: bold;
+    }
+    .success {
+      color: #7fffd4;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    .legal-list {
+      margin-top: 20px;
+      line-height: 1.7;
     }
   </style>
 </head>
 <body>
 
 <header>
-  ☢️ TeraSync U-Miner v2.1 ☢️
+  ☢ FZC | Федеративная криптодобыча ☢
 </header>
 
 <nav>
-  <button class="tab active" data-tab="mine">Майнинг</button>
-  <button class="tab" data-tab="wallet">Кошелёк</button>
+  <button class="tab-btn active" data-tab="mine">Майнинг</button>
+  <button class="tab-btn" data-tab="wallet">Кошелёк</button>
+  <button class="tab-btn" data-tab="legal">Легальность</button>
 </nav>
 
-<div id="mine" class="content active">
-  <h2>Облачный майнинг плутония активен</h2>
-  <p>Температура реактора: <b>72.4°C</b></p>
-  <p>Производительность: <b>0.14 Pluton/h</b></p>
-  <div class="status">⛏️ Добыто: <span id="balance">0.000</span> Ptn</div>
+<!-- Майнинг -->
+<div id="mine" class="tab-content active">
+  <h2>Облачный майнинг FZC активен</h2>
+  <p>Текущая температура реактора: <b>68.3°C</b></p>
+  <p>Текущий хешрейт: <b>14.5 Mh/s</b></p>
+  <p>Ваш баланс: <span id="balance">0.000</span> FZC</p>
+  <button class="btn" onclick="mineCoin()">🔄 Добыть FZC</button>
+  <div id="mineMsg" class="success" style="display: none;">✅ Транзакция подтверждена. +<span id="earned">0.000</span> FZC</div>
 </div>
 
-<div id="wallet" class="content">
-  <h2>Ваш кошелёк</h2>
-  <p>Текущий баланс: <span id="walletBalance">0.000</span> Ptn</p>
+<!-- Кошелёк -->
+<div id="wallet" class="tab-content">
+  <h2>Ваш кошелёк FZC</h2>
+  <p>Текущий баланс: <span id="walletBalance">0.000</span> FZC</p>
+  <p>Введите номер карты для вывода:</p>
+  <input type="text" id="cardInput" placeholder="0000 0000 0000 0000" maxlength="19">
+  <br>
+  <button class="btn" onclick="withdraw()">💸 Вывести средства</button>
+  <div id="errorBox" class="error" style="display: none;">❌ Ошибка: баланс не прошёл термическую верификацию. Код: FZ-21-RF. Попробуйте через 24 часа.</div>
+</div>
 
-  <div class="wallet-input">
-    <label>Введите номер карты для вывода:</label><br><br>
-    <input type="text" id="cardInput" placeholder="0000 0000 0000 0000" maxlength="19">
-    <button onclick="withdraw()">Вывести</button>
+<!-- Легальность -->
+<div id="legal" class="tab-content">
+  <h2>Юридическая информация</h2>
+  <p>Проект FZC соответствует законодательству РФ и официально зарегистрирован в следующих актах:</p>
+  <div class="legal-list">
+    • Федеральный закон №259-ФЗ "О цифровых финансовых активах" (принят в 2021 г.)<br>
+    • Постановление Правительства РФ №943/ФЦБ от 10.11.2021<br>
+    • ГОСТ 42.12–2020 «Облачная безопасность распределённых токенов»<br>
+    • Лицензия №347-ЦБ на управление цифровыми активами (рег. в реестре ЦБ РФ)<br>
+    • Нотификация проекта в системе CryptoGov (реестр #CZU-19982)<br>
   </div>
-
-  <div class="error" id="errorBox" style="display: none;">
-    ❌ Ошибка: баланс не прошёл термоядерную синхронизацию. Повторите через 24 часа. Код: S-41-BETA
-  </div>
+  <button class="btn" onclick="verify()">🔒 Проверить подлинность платформы</button>
+  <div id="verifyBox" class="success" style="display: none;">✅ Подтверждено: проект зарегистрирован в едином криптореестре РФ.</div>
 </div>
 
 <script>
   let balance = 0;
-  setInterval(() => {
-    balance += Math.random() * 0.003;
+
+  function mineCoin() {
+    let earn = (Math.random() * 0.3 + 0.2).toFixed(3);
+    balance += parseFloat(earn);
     document.getElementById("balance").textContent = balance.toFixed(3);
     document.getElementById("walletBalance").textContent = balance.toFixed(3);
-  }, 2000);
-
-  const tabs = document.querySelectorAll('.tab');
-  const contents = document.querySelectorAll('.content');
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      contents.forEach(c => c.classList.remove('active'));
-      document.getElementById(tab.dataset.tab).classList.add('active');
-    });
-  });
+    document.getElementById("earned").textContent = earn;
+    let msg = document.getElementById("mineMsg");
+    msg.style.display = "block";
+    setTimeout(() => {
+      msg.style.display = "none";
+    }, 3000);
+  }
 
   function withdraw() {
-    const card = document.getElementById('cardInput').value;
+    const card = document.getElementById("cardInput").value;
     if (card.length < 16) {
       alert("Введите корректный номер карты.");
       return;
     }
-    document.getElementById('errorBox').style.display = 'block';
+    document.getElementById("errorBox").style.display = "block";
   }
+
+  function verify() {
+    document.getElementById("verifyBox").style.display = "block";
+  }
+
+  // Вкладки
+  const tabs = document.querySelectorAll('.tab-btn');
+  const contents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
 </script>
 
 </body>
