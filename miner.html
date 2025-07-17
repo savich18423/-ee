@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>FZC Miner | Федеративная добыча</title>
+  <style>
+    body {
+      background: #0c0c0c;
+      color: #e0e0e0;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #141414;
+      padding: 20px;
+      text-align: center;
+      color: #00ffcc;
+      font-size: 26px;
+      font-weight: bold;
+      border-bottom: 2px solid #00ffcc;
+    }
+    main {
+      padding: 30px;
+    }
+    .balance-box {
+      background: #1b1b1b;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 0 10px #00ffcc33;
+    }
+    .btn {
+      padding: 14px 24px;
+      background: #00ffcc;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .chart {
+      margin-top: 30px;
+      height: 180px;
+      background: linear-gradient(to right, #00ffcc33, #00ffcc11);
+      border-radius: 10px;
+      box-shadow: inset 0 0 10px #00ffcc55;
+      position: relative;
+    }
+    .chart-line {
+      position: absolute;
+      bottom: 0;
+      height: 4px;
+      width: 100%;
+      background: #00ffcc;
+      animation: pulse 3s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0% { transform: scaleX(0.3); opacity: 0.3; }
+      50% { transform: scaleX(1); opacity: 1; }
+      100% { transform: scaleX(0.3); opacity: 0.3; }
+    }
+    .link-btn {
+      margin-top: 30px;
+      display: inline-block;
+      text-decoration: none;
+      background: #222;
+      color: #00ffcc;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  ⛏ Федеративный майнинг FZC
+</header>
+
+<main>
+  <div class="balance-box">
+    <p><b>Ваш баланс:</b></p>
+    <p>💰 <span id="balance">0.000</span> FZC</p>
+    <p>≈ <span id="rub">0.00</span> ₽</p>
+  </div>
+
+  <button class="btn" onclick="mine()">Добыть FZC</button>
+
+  <div class="chart">
+    <div class="chart-line"></div>
+  </div>
+
+  <a class="link-btn" href="exchange.html">Перейти на биржу FZC</a>
+</main>
+
+<script>
+  const rateRub = 3125 + Math.random() * 400;
+
+  function loadBalance() {
+    const bal = parseFloat(localStorage.getItem("balance")) || 0;
+    document.getElementById("balance").innerText = bal.toFixed(3);
+    document.getElementById("rub").innerText = (bal * rateRub).toFixed(2);
+  }
+
+  function mine() {
+    let bal = parseFloat(localStorage.getItem("balance")) || 0;
+    let mined = (0.2 + Math.random() * 0.5);
+    bal += mined;
+    localStorage.setItem("balance", bal);
+    loadBalance();
+    alert(`✅ Добыто ${mined.toFixed(3)} FZC`);
+  }
+
+  loadBalance();
+</script>
+
+</body>
+</html>
