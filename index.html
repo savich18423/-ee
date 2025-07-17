@@ -2,208 +2,202 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>FZC Гос.Майнинг Платформа</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FZC Mining Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    * {box-sizing: border-box;}
     body {
-      margin: 0;
+      background: #0e1013;
       font-family: 'Segoe UI', sans-serif;
-      background: #0b0f12;
-      color: #e0f0f0;
+      color: #e6f2ff;
+      margin: 0;
       padding: 20px;
     }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #161a1f;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 40px rgba(0,255,255,0.08);
+    }
+
     h1 {
       text-align: center;
-      color: #00ffd2;
+      color: #00ffe5;
       margin-bottom: 10px;
     }
-    .card {
-      background: #141a1f;
-      border-radius: 12px;
-      padding: 20px;
-      max-width: 600px;
-      margin: 0 auto;
-      box-shadow: 0 0 20px #00ffd222;
-    }
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 12px;
-      border-radius: 8px;
-      border: none;
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
       font-size: 16px;
     }
-    input {
-      background: #1c1f22;
-      color: #fff;
-    }
-    button {
-      background: #00ffd2;
-      color: #000;
+
+    .button {
+      background: linear-gradient(45deg, #00ffe5, #00b3ff);
+      border: none;
+      border-radius: 10px;
+      padding: 15px;
+      font-size: 18px;
       font-weight: bold;
+      color: #000;
       cursor: pointer;
+      width: 100%;
+      transition: transform 0.1s ease-in-out;
     }
-    #log {
+
+    .button:active {
+      transform: scale(0.97);
+    }
+
+    .progress {
+      height: 18px;
       background: #111;
+      border-radius: 10px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: #00ffe5;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    canvas {
+      background: #0a0d11;
+      border-radius: 8px;
+      width: 100%;
+      height: 100px;
+      margin: 20px 0;
+    }
+
+    .upgrade {
+      background: #222;
+      color: #00ffd5;
+      text-align: center;
       padding: 12px;
       border-radius: 8px;
       margin-top: 20px;
+      cursor: pointer;
+    }
+
+    .upgrade:hover {
+      background: #333;
+    }
+
+    .small {
       font-size: 14px;
       color: #aaa;
-      max-height: 120px;
-      overflow-y: auto;
-    }
-    #status {
-      font-size: 14px;
-      color: #66faff;
+      text-align: center;
       margin-top: 10px;
     }
-    .progress {
-      background: #1f2a2f;
-      border-radius: 6px;
-      overflow: hidden;
-      height: 18px;
-      margin-top: 15px;
-    }
-    .progress-inner {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(to right, #00ffd2, #00bbaa);
-      transition: width 0.3s;
-    }
-    .balance {
-      font-size: 18px;
-      margin-top: 20px;
-    }
-    canvas {
-      width: 100%;
-      height: 120px;
-      margin-top: 25px;
-      background: #111;
-      border-radius: 8px;
-    }
-    .note {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 12px;
-      color: #888;
-    }
+
   </style>
 </head>
 <body>
 
-<h1>⛏️ Гос.Майнинг Платформа</h1>
+  <div class="container">
+    <h1>⛏️ FZC Майнинг Ферма</h1>
 
-<div class="card" id="card">
-  <input type="text" id="wallet" placeholder="Введите FZC-кошелёк (FZC-XXXX)">
-  <button onclick="connect()">Подключиться к ферме</button>
+    <div class="stats">
+      <div>🌡️ Температура: <span id="temp">65°C</span></div>
+      <div>⚡ Хешрейт: <span id="hash">24.5 Mh/s</span></div>
+    </div>
 
-  <div id="miner" style="display:none;">
-    <div id="status">⏳ Инициализация...</div>
-    <button onclick="toggleMining()" id="mineBtn">▶️ Начать добычу</button>
+    <canvas id="chart"></canvas>
+
+    <button class="button" onclick="mine()">🚀 Начать майнинг</button>
 
     <div class="progress">
-      <div id="progressBar" class="progress-inner"></div>
+      <div class="progress-bar" id="progressBar"></div>
     </div>
 
-    <div class="balance">
-      💰 Баланс: <span id="bal">0.000</span> FZC ≈ <span id="rub">0.00</span> ₽
+    <div class="stats" style="margin-top:20px;">
+      <div>💰 Баланс: <span id="fzc">0.000</span> FZC</div>
+      <div>₽: <span id="rub">0.00</span></div>
     </div>
 
-    <canvas id="graph"></canvas>
-
-    <div id="log"></div>
-    <p class="note">📜 Доход освобожден от налогообложения по ст. 217 НК РФ</p>
+    <div class="upgrade" onclick="upgrade()">🔧 Улучшить ферму (50₽)</div>
+    <div class="small">Версия симулятора: 2.0.0 (юмор)</div>
   </div>
-</div>
 
-<script>
-  let mining = false, balance = 0, maxBalance = 5.0, rate = 3500 + Math.random() * 700, interval;
-  const ctx = document.getElementById('graph').getContext('2d');
-  const logs = document.getElementById('log');
+  <script>
+    let balance = parseFloat(localStorage.getItem("balance") || "0");
+    let power = parseFloat(localStorage.getItem("power") || "1.0");
+    const rate = 3975 + Math.random() * 100;
 
-  function connect() {
-    const w = document.getElementById('wallet').value.trim();
-    if (!w.startsWith("FZC-")) {
-      alert("❌ Неверный формат кошелька");
-      return;
+    const tempEl = document.getElementById("temp");
+    const hashEl = document.getElementById("hash");
+    const fzcEl = document.getElementById("fzc");
+    const rubEl = document.getElementById("rub");
+    const progressBar = document.getElementById("progressBar");
+
+    function updateStats() {
+      fzcEl.textContent = balance.toFixed(3);
+      rubEl.textContent = (balance * rate).toFixed(2);
+      tempEl.textContent = (65 + Math.random() * 8).toFixed(1) + "°C";
+      hashEl.textContent = (24 + power * 2.5).toFixed(2) + " Mh/s";
+      localStorage.setItem("balance", balance);
+      localStorage.setItem("power", power);
     }
 
-    document.getElementById('status').textContent = '🔌 Подключение к узлу...';
-    setTimeout(() => {
-      document.getElementById('card').querySelector('button').style.display = 'none';
-      document.getElementById('wallet').style.display = 'none';
-      document.getElementById('miner').style.display = 'block';
-      document.getElementById('status').textContent = '✅ Подключено к FZC-node-4.2 (стабильная сеть)';
+    function mine() {
+      let percent = 0;
+      progressBar.style.width = "0%";
+      let interval = setInterval(() => {
+        percent += 2 + Math.random() * 3;
+        if (percent >= 100) {
+          percent = 100;
+          clearInterval(interval);
+          let mined = 0.005 * power;
+          balance += mined;
+          updateStats();
+        }
+        progressBar.style.width = percent + "%";
+      }, 60);
+    }
+
+    function upgrade() {
+      const rub = balance * rate;
+      if (rub < 50) {
+        alert("❌ Недостаточно средств. Нужно минимум 50₽ (~" + (50 / rate).toFixed(3) + " FZC)");
+        return;
+      }
+      balance -= (50 / rate);
+      power += 0.4;
+      alert("✅ Успешно улучшено! Хешрейт вырос.");
+      updateStats();
+    }
+
+    // График хешрейта
+    const ctx = document.getElementById("chart").getContext("2d");
+    function drawGraph() {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      let y = 60;
+      for (let x = 0; x < ctx.canvas.width; x += 5) {
+        let ny = y + (Math.random() - 0.5) * 15;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + 5, ny);
+        ctx.strokeStyle = "#00ffe5";
+        ctx.stroke();
+        y = ny;
+      }
+    }
+
+    setInterval(() => {
       drawGraph();
-      render();
-    }, 2000);
-  }
+      updateStats();
+    }, 3000);
 
-  function toggleMining() {
-    if (mining) {
-      mining = false;
-      clearInterval(interval);
-      document.getElementById('mineBtn').textContent = '▶️ Продолжить добычу';
-      document.getElementById('status').textContent = '⏸️ Добыча приостановлена';
-    } else {
-      mining = true;
-      interval = setInterval(mineTick, 2500);
-      document.getElementById('mineBtn').textContent = '⛏️ Остановить добычу';
-      document.getElementById('status').textContent = '✅ Добыча активна...';
-    }
-  }
-
-  function mineTick() {
-    if (balance >= maxBalance) {
-      document.getElementById('status').textContent = '⚠️ Достигнут лимит добычи';
-      toggleMining();
-      return;
-    }
-
-    const mined = 0.1 + Math.random() * 0.2;
-    balance += mined;
-    if (balance > maxBalance) balance = maxBalance;
-    render();
-    log(`+${mined.toFixed(3)} FZC добыто...`);
-  }
-
-  function render() {
-    document.getElementById('bal').textContent = balance.toFixed(3);
-    document.getElementById('rub').textContent = (balance * rate).toFixed(2);
-    const pct = (balance / maxBalance) * 100;
-    document.getElementById('progressBar').style.width = pct + '%';
-  }
-
-  function drawGraph() {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    let prevY = 100;
-    for (let x = 0; x < ctx.canvas.width; x += 5) {
-      const y = 60 + Math.sin(x * 0.05 + Math.random()) * 30;
-      ctx.beginPath();
-      ctx.moveTo(x, prevY);
-      ctx.lineTo(x + 5, y);
-      ctx.strokeStyle = '#00ffd2';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      prevY = y;
-    }
-  }
-
-  function log(msg) {
-    const time = new Date().toLocaleTimeString();
-    logs.innerHTML = `[${time}] ${msg}<br>` + logs.innerHTML;
-  }
-
-  if (localStorage.getItem('fzc_balance')) {
-    balance = parseFloat(localStorage.getItem('fzc_balance'));
-  }
-
-  setInterval(() => {
-    localStorage.setItem('fzc_balance', balance.toFixed(3));
-  }, 3000);
-</script>
+    // Первая отрисовка
+    drawGraph();
+    updateStats();
+  </script>
 
 </body>
 </html>
