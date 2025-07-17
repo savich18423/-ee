@@ -1,160 +1,204 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>FZC Miner | Федеральная добыча</title>
+  <meta charset="UTF-8">
+  <title>FZC Майнинг-Платформа</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      background: #0d0d0d;
-      color: #e0e0e0;
-      font-family: Arial, sans-serif;
       margin: 0;
+      background: #0c0c0c;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', sans-serif;
     }
     header {
-      background: #101010;
+      background: #111;
       padding: 20px;
       text-align: center;
       font-size: 26px;
-      color: #00ffcc;
-      font-weight: bold;
-      border-bottom: 2px solid #00ffcc;
+      color: #00ffd2;
+      border-bottom: 2px solid #00ffd2;
     }
     main {
-      padding: 30px;
       max-width: 600px;
       margin: 0 auto;
+      padding: 30px;
     }
     input {
       width: 100%;
       padding: 12px;
-      margin: 10px 0 20px 0;
+      font-size: 16px;
+      margin-bottom: 20px;
       border-radius: 8px;
       border: none;
-      font-size: 16px;
     }
     .btn {
+      width: 100%;
       padding: 14px;
-      background: #00ffcc;
+      font-size: 16px;
       border: none;
       border-radius: 8px;
+      background: #00ffd2;
+      color: #000;
       font-weight: bold;
       cursor: pointer;
-      font-size: 16px;
-      width: 100%;
-      margin-top: 10px;
     }
     .btn:disabled {
-      background: #555;
+      background: #444;
+      color: #999;
       cursor: not-allowed;
     }
     .balance-box {
+      margin-top: 30px;
       background: #1a1a1a;
       padding: 20px;
       border-radius: 10px;
-      margin-top: 20px;
-      box-shadow: 0 0 10px #00ffcc44;
+      box-shadow: 0 0 10px #00ffd244;
     }
     .chart {
-      height: 160px;
-      background: linear-gradient(to right, #00ffcc33, #00ffcc11);
+      height: 150px;
       margin-top: 30px;
-      border-radius: 8px;
+      background: #111;
+      border-radius: 10px;
       overflow: hidden;
       position: relative;
     }
     .bar {
       position: absolute;
       bottom: 0;
-      width: 4px;
-      background: #00ffcc;
-      animation: grow 1.2s infinite ease-in-out;
+      width: 3px;
+      background: #00ffd2;
+      animation: grow 1.4s infinite ease-in-out;
     }
     @keyframes grow {
       0% { height: 10%; }
-      50% { height: 90%; }
+      50% { height: 95%; }
       100% { height: 10%; }
+    }
+    .progress {
+      margin-top: 20px;
+      background: #2a2a2a;
+      border-radius: 6px;
+      overflow: hidden;
+      height: 20px;
+    }
+    .progress-inner {
+      height: 100%;
+      background: #00ffd2;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .footer-note {
+      font-size: 12px;
+      color: #888;
+      margin-top: 20px;
+      text-align: center;
     }
     .link-btn {
       display: block;
       margin-top: 30px;
+      background: #222;
+      color: #00ffd2;
+      padding: 12px;
       text-align: center;
       text-decoration: none;
-      background: #222;
-      color: #00ffcc;
-      padding: 12px;
-      border-radius: 6px;
+      border-radius: 8px;
       font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-<header>⛏️ FZC Федеративная Майнинг-Платформа</header>
+<header>⛏️ Государственная майнинг-платформа FZC</header>
 
 <main>
-  <label for="wallet">Введите ваш крипто-кошелёк (FZC):</label>
-  <input type="text" id="wallet" placeholder="FZC-XXXXXXX" oninput="checkInput()" />
-
-  <button class="btn" id="startBtn" disabled onclick="startMining()">Начать майнинг</button>
-
-  <div class="balance-box">
-    <p><b>Ваш баланс:</b></p>
-    <p>💰 <span id="balance">0.000</span> FZC</p>
-    <p>≈ <span id="rub">0.00</span> ₽</p>
+  <div id="step1">
+    <input type="text" id="wallet" placeholder="Введите ваш FZC-кошелёк (например: FZC-54DSA12)" />
+    <button class="btn" onclick="verifyWallet()">Подключиться к платформе</button>
   </div>
 
-  <div class="chart" id="chart"></div>
+  <div id="step2" style="display:none;">
+    <p><b>Кошелёк:</b> <span id="walletDisplay"></span></p>
+    <button class="btn" onclick="mine()">Добыть FZC</button>
 
-  <a href="exchange.html" class="link-btn">📤 Перейти на биржу</a>
+    <div class="balance-box">
+      <p><b>Баланс:</b> <span id="balance">0.000</span> FZC</p>
+      <p>≈ <span id="rub">0.00</span> ₽</p>
+    </div>
+
+    <div class="progress">
+      <div id="progressBar" class="progress-inner"></div>
+    </div>
+
+    <div class="chart" id="chart"></div>
+
+    <a href="exchange.html" class="link-btn">📤 Перейти на биржу</a>
+
+    <div class="footer-note">
+      🛡️ В соответствии со статьёй 217 НК РФ, доходы по FZC не подлежат налогообложению до 1 млн ₽.
+    </div>
+  </div>
 </main>
 
 <script>
-  const rateRub = 3125 + Math.random() * 400;
+  const maxBalance = 5.0;
+  const rate = 3500 + Math.random() * 500;
 
-  function checkInput() {
-    const wallet = document.getElementById("wallet").value.trim();
-    document.getElementById("startBtn").disabled = wallet.length < 6;
-  }
-
-  function startMining() {
-    const wallet = document.getElementById("wallet").value.trim();
-    if (!wallet.startsWith("FZC-")) {
-      alert("❌ Неверный формат кошелька. Пример: FZC-ABC12345");
+  function verifyWallet() {
+    const w = document.getElementById("wallet").value.trim();
+    if (!w.startsWith("FZC-") || w.length < 8) {
+      alert("❌ Неверный формат кошелька");
       return;
     }
-    localStorage.setItem("fzc_wallet", wallet);
-    mineCoin();
+
+    document.getElementById("step1").innerHTML = "🔍 Проверка кошелька...";
+    setTimeout(() => {
+      document.getElementById("walletDisplay").innerText = w;
+      localStorage.setItem("fzc_wallet", w);
+      document.getElementById("step2").style.display = "block";
+    }, 1500);
   }
 
-  function mineCoin() {
+  function mine() {
     let bal = parseFloat(localStorage.getItem("balance")) || 0;
-    const mined = 0.25 + Math.random() * 0.6;
+    if (bal >= maxBalance) {
+      alert("💸 Достигнут лимит бесплатной добычи. Перейдите на биржу для вывода.");
+      return;
+    }
+
+    const mined = 0.2 + Math.random() * 0.4;
     bal += mined;
+    if (bal > maxBalance) bal = maxBalance;
+
     localStorage.setItem("balance", bal);
-    updateBalanceUI();
-    alert(`✅ Добыто ${mined.toFixed(3)} FZC`);
+    updateUI();
+
+    if (window.navigator.vibrate) navigator.vibrate(100);
+    alert(`✅ Вы добыли ${mined.toFixed(3)} FZC`);
   }
 
-  function updateBalanceUI() {
-    let bal = parseFloat(localStorage.getItem("balance")) || 0;
+  function updateUI() {
+    const bal = parseFloat(localStorage.getItem("balance")) || 0;
     document.getElementById("balance").textContent = bal.toFixed(3);
-    document.getElementById("rub").textContent = (bal * rateRub).toFixed(2);
+    document.getElementById("rub").textContent = (bal * rate).toFixed(2);
+    const percent = Math.min((bal / maxBalance) * 100, 100);
+    document.getElementById("progressBar").style.width = percent + "%";
   }
 
   function renderChart() {
     const chart = document.getElementById("chart");
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 70; i++) {
       const bar = document.createElement("div");
       bar.className = "bar";
-      bar.style.left = `${i * 10}px`;
+      bar.style.left = `${i * 8}px`;
+      bar.style.animationDelay = `${Math.random()}s`;
       bar.style.height = `${10 + Math.random() * 90}%`;
-      bar.style.animationDelay = `${Math.random() * 1.5}s`;
       chart.appendChild(bar);
     }
   }
 
-  updateBalanceUI();
   renderChart();
+  updateUI();
 </script>
 
 </body>
