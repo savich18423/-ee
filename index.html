@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>TeraSync U-Miner v2.1</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0f17;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #111;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #00ff91;
+      border-bottom: 1px solid #222;
+    }
+    nav {
+      display: flex;
+      background: #151515;
+    }
+    nav button {
+      flex: 1;
+      padding: 15px;
+      background: #151515;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    nav button.active {
+      background: #00ff91;
+      color: #000;
+      font-weight: bold;
+    }
+    .content {
+      padding: 30px;
+      display: none;
+    }
+    .content.active {
+      display: block;
+    }
+    .status {
+      font-size: 20px;
+      margin-top: 20px;
+    }
+    .wallet-input {
+      margin-top: 20px;
+    }
+    .wallet-input input {
+      padding: 10px;
+      width: 250px;
+      border: none;
+      border-radius: 5px;
+    }
+    .wallet-input button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      background: #00ff91;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .error {
+      color: #ff5e5e;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  ☢️ TeraSync U-Miner v2.1 ☢️
+</header>
+
+<nav>
+  <button class="tab active" data-tab="mine">Майнинг</button>
+  <button class="tab" data-tab="wallet">Кошелёк</button>
+</nav>
+
+<div id="mine" class="content active">
+  <h2>Облачный майнинг плутония активен</h2>
+  <p>Температура реактора: <b>72.4°C</b></p>
+  <p>Производительность: <b>0.14 Pluton/h</b></p>
+  <div class="status">⛏️ Добыто: <span id="balance">0.000</span> Ptn</div>
+</div>
+
+<div id="wallet" class="content">
+  <h2>Ваш кошелёк</h2>
+  <p>Текущий баланс: <span id="walletBalance">0.000</span> Ptn</p>
+
+  <div class="wallet-input">
+    <label>Введите номер карты для вывода:</label><br><br>
+    <input type="text" id="cardInput" placeholder="0000 0000 0000 0000" maxlength="19">
+    <button onclick="withdraw()">Вывести</button>
+  </div>
+
+  <div class="error" id="errorBox" style="display: none;">
+    ❌ Ошибка: баланс не прошёл термоядерную синхронизацию. Повторите через 24 часа. Код: S-41-BETA
+  </div>
+</div>
+
+<script>
+  let balance = 0;
+  setInterval(() => {
+    balance += Math.random() * 0.003;
+    document.getElementById("balance").textContent = balance.toFixed(3);
+    document.getElementById("walletBalance").textContent = balance.toFixed(3);
+  }, 2000);
+
+  const tabs = document.querySelectorAll('.tab');
+  const contents = document.querySelectorAll('.content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      contents.forEach(c => c.classList.remove('active'));
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  function withdraw() {
+    const card = document.getElementById('cardInput').value;
+    if (card.length < 16) {
+      alert("Введите корректный номер карты.");
+      return;
+    }
+    document.getElementById('errorBox').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
