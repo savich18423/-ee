@@ -75,6 +75,13 @@
       margin-top: 20px;
       line-height: 1.7;
     }
+    #chart {
+      width: 100%;
+      height: 200px;
+      background: #1e1e1e;
+      margin-top: 30px;
+      border: 1px solid #333;
+    }
   </style>
 </head>
 <body>
@@ -94,15 +101,17 @@
   <h2>Облачный майнинг FZC активен</h2>
   <p>Текущая температура реактора: <b>68.3°C</b></p>
   <p>Текущий хешрейт: <b>14.5 Mh/s</b></p>
-  <p>Ваш баланс: <span id="balance">0.000</span> FZC</p>
+  <p>Ваш баланс: <span id="balance">0.000</span> FZC ≈ <span id="rubles">0.00</span> ₽</p>
   <button class="btn" onclick="mineCoin()">🔄 Добыть FZC</button>
   <div id="mineMsg" class="success" style="display: none;">✅ Транзакция подтверждена. +<span id="earned">0.000</span> FZC</div>
+
+  <canvas id="chart" width="500" height="200"></canvas>
 </div>
 
 <!-- Кошелёк -->
 <div id="wallet" class="tab-content">
   <h2>Ваш кошелёк FZC</h2>
-  <p>Текущий баланс: <span id="walletBalance">0.000</span> FZC</p>
+  <p>Текущий баланс: <span id="walletBalance">0.000</span> FZC ≈ <span id="walletRub">0.00</span> ₽</p>
   <p>Введите номер карты для вывода:</p>
   <input type="text" id="cardInput" placeholder="0000 0000 0000 0000" maxlength="19">
   <br>
@@ -126,19 +135,28 @@
 </div>
 
 <script>
-  let balance = 0;
+  let balance = parseFloat(localStorage.getItem("balance")) || 0;
+  let currentRate = 3125 + Math.random() * 400; // курс FZC к рублю
+
+  function updateUI() {
+    document.getElementById("balance").textContent = balance.toFixed(3);
+    document.getElementById("walletBalance").textContent = balance.toFixed(3);
+    document.getElementById("rubles").textContent = (balance * currentRate).toFixed(2);
+    document.getElementById("walletRub").textContent = (balance * currentRate).toFixed(2);
+    localStorage.setItem("balance", balance.toFixed(3));
+  }
 
   function mineCoin() {
     let earn = (Math.random() * 0.3 + 0.2).toFixed(3);
     balance += parseFloat(earn);
-    document.getElementById("balance").textContent = balance.toFixed(3);
-    document.getElementById("walletBalance").textContent = balance.toFixed(3);
+    currentRate += (Math.random() - 0.5) * 100;
+    updateUI();
     document.getElementById("earned").textContent = earn;
-    let msg = document.getElementById("mineMsg");
-    msg.style.display = "block";
+    document.getElementById("mineMsg").style.display = "block";
     setTimeout(() => {
-      msg.style.display = "none";
+      document.getElementById("mineMsg").style.display = "none";
     }, 3000);
+    updateChart(currentRate);
   }
 
   function withdraw() {
@@ -166,6 +184,30 @@
       document.getElementById(tab.dataset.tab).classList.add('active');
     });
   });
+
+  // График курса
+  let ctx = document.getElementById('chart').getContext('2d');
+  let chartData = Array.from({length: 50}, () => 3000 + Math.random() * 600);
+
+  function updateChart(newRate) {
+    chartData.push(newRate);
+    if (chartData.length > 50) chartData.shift();
+
+    ctx.clearRect(0, 0, 500, 200);
+    ctx.beginPath();
+    ctx.strokeStyle = '#00ff9d';
+    ctx.lineWidth = 2;
+    chartData.forEach((val, i) => {
+      let x = (i / chartData.length) * 500;
+      let y = 200 - ((val - 2800) / 800) * 200;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+
+  updateUI();
+  updateChart(currentRate);
 </script>
 
 </body>
